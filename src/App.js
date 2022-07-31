@@ -11,7 +11,7 @@ class App extends react.Component {
     super(props)
     this.state= {
       locationName : '',
-      allInformation : {},
+      allInfo : {},
       showData : false,
 
     }
@@ -24,7 +24,7 @@ class App extends react.Component {
     let url = `https://eu1.locationiq.com/v1/search?key=pk.dcf3597210552ea62d79cef7216ad648&q=${this.state.locationName}&format=json`;
     let response =await axios.get(url);
     console.log(response);
-    this.setState({allInformation:response.data[0],showData:true})
+    this.setState({allInfo:response.data[0],showData:true})
 
   }
 
@@ -32,7 +32,7 @@ class App extends react.Component {
   render() {
     return (
       <div>
-        <h1>Weclome my map application</h1>
+        <h1>Weclome my app aplication</h1>
 
         <Form onSubmit={this.viewLocation}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
@@ -46,9 +46,9 @@ class App extends react.Component {
       </br>
       {this.state.showData &&
       <>
-      <p> Place Name : {this.state.allInformation.display_name}</p>
-      <p> Latitude : {this.state.allInformation.lat}</p>
-      <p> Longitude :{this.state.allInformation.lon}</p>
+      <p> Place Name : {this.state.allInfo.display_name}</p>
+      <p> Latitude : {this.state.allInfo.lat}</p>
+      <p> Longitude :{this.state.allInfo.lon}</p>
       <br>
     </br>
     <img src={`https://maps.locationiq.com/v3/staticmap?key=pk.dcf3597210552ea62d79cef7216ad648&center=${this.state.allInfo.lat},${this.state.allInfo.lon}&zoom=10`} alt='here we are'/>
