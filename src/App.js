@@ -32,14 +32,14 @@ class App extends react.Component {
   render() {
     return (
       <div>
-        <h1>Weclome to Map Viewer</h1>
+        <h1>Weclome my app aplication</h1>
 
         <Form onSubmit={this.viewLocation}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Control type="text" name="Cityname" placeholder="Enter Place" />
           </Form.Group>
           <Button variant="primary" type="submit">
-              Goo!
+              submit
           </Button>
         </Form>
       <br>
