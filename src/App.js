@@ -1,64 +1,88 @@
-import react from 'react'
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
+import LocationSearchForm from './components/LocationSearchForm';
+import React from 'react';
 import axios from 'axios';
+import LocationFigure from './components/LocationFigure';
+import { Toast } from 'react-bootstrap';
+import Weather from './components/Weather';
 
-class App extends react.Component {
 
-
-  constructor(props) {
-    super(props)
-    this.state= {
-      locationName : '',
-      allInfo : {},
-      showData : false,
-
+class App extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      location: {},
+      locationMap: '',
+      status: false,
+      statusText: '',
+      weatherData: []
     }
   }
 
-  viewLocation = async (event) => {
-
+  getLocation = async (event) => {
     event.preventDefault();
-    await this.setState({locationName:event.target.Cityname.value});
-    let url = `https://eu1.locationiq.com/v1/search?key=${process.env.REACT_APP_LOCATION_API_KEY}&q=${this.state.locationName}&format=json`;
-    let response =await axios.get(url);
-    console.log(response);
-    this.setState({allInfo:response.data[0],showData:true})
+
+    const locationName = event.target.cityName.value;
+    const key = process.env.REACT_APP_LOCATION_KEY;
+    const rootPath = process.env.REACT_APP_ROOT_PATH;
+
+    let locationData;
+    try {
+      locationData = await axios.get(`https://eu1.locationiq.com/v1/search.php?key=${key}&q=${locationName}&format=json`);
+      this.setState({
+        location: locationData.data[0],
+        status: locationData.status,
+        statusText: locationData.statusText,
+      })
+
+
+      const locationMap = `https://maps.locationiq.com/v3/staticmap?key=${key}&center=${this.state.location.lat},${this.state.location.lon}&format=jpg&markers=icon:large-red-cutout|${this.state.location.lat},${this.state.location.lon}`;
+      this.setState({
+
+        locationMap: locationMap
+      })
+
+    }
+    catch (error) {
+      if (error.response) {
+        this.setState({
+          status: error.response.status,
+          statusText: error.response.data.error,
+        })
+        console.log(this.state.status);
+      }
+    };
+
+
+    try {
+      let weatherData = await axios.get(`${rootPath}/weather?lat=${this.state.location.lat}&lon=${this.state.location.lon}&searchQuery=${locationName}`);
+
+      weatherData.data.length > 0 ? this.setState({
+        weatherData: weatherData.data
+      }) : this.setState({
+        weatherData: []
+      })
+
+    } catch (error) {
+    }
 
   }
 
-
   render() {
     return (
-      <div>
-        <h1>Weclome my app aplication</h1>
+      <div className="App">
+        <h1>City Explorer</h1>
+        <LocationSearchForm getLocation={this.getLocation} />
+        {this.state.status === 200 ? <LocationFigure location={this.state.location} locationMap={this.state.locationMap} /> : (this.state.status && <Toast>
+          <Toast.Body>
+          <p>{this.state.status}</p>
+            <p> {this.state.statusText}</p>
 
-        <Form onSubmit={this.viewLocation}>
-          <Form.Group className="mb-3" controlId="formBasicEmail">
-            <Form.Control type="text" name="Cityname" placeholder="Enter Place" />
-          </Form.Group>
-          <Button variant="primary" type="submit">
-              submit
-          </Button>
-        </Form>
-      <br>
-      </br>
-      {this.state.showData &&
-      <>
-      <p> Place Name : {this.state.allInfo.display_name}</p>
-      <p> Latitude : {this.state.allInfo.lat}</p>
-      <p> Longitude :{this.state.allInfo.lon}</p>
-      <br>
-    </br>
-    <img src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_LOCATION_API_KEY}&center=${this.state.allInfo.lat},${this.state.allInfo.lon}&zoom=10`} alt='here we are'/>
-    </>
-
-      }
-
+            </Toast.Body>
+     </Toast>)}
       </div>
     )
   }
 }
 
-export default App
+export default App;
