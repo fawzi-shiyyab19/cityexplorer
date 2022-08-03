@@ -6,6 +6,7 @@ import Weather from './components/Weather';
 import Map from './components/map';
 import axios from 'axios';
 import Errorcom from './components/error';
+import Movie from './components/Movie';
 class App extends Component{
   constructor(props){
     super(props);
@@ -18,7 +19,9 @@ class App extends Component{
       errormsg:'',
       displayerr:false,
       weather:[],
-      isWeather:false
+      isWeather:false,
+      movies:[],
+      isMovie:false
     }
   }
   displayLocation=async(e) =>{
@@ -36,7 +39,8 @@ try {
         displayerr:false
   })
   this.displayMap(city.data[0].lat,city.data[0].lon);
-  this.displayWeather(searchQuery, city.data[0].lat,city.data[0].lon)
+  this.displayWeather(searchQuery, city.data[0].lat,city.data[0].lon);
+  this.setMovies(searchQuery)
 }catch(error){
 this.setState({
   DisplayInfo:false,
@@ -73,6 +77,20 @@ errormsg:error.response.status + ': '+error.response.data.error
   }
   }
 
+setMovies=async(searchQuery) =>{
+  try{
+const movieData=await axios.get(`http://localhost:3001/movies?searchQuery=${searchQuery}`);
+this.setState({
+  movies:movieData.data,
+  isMovie:true
+})
+  }catch(error){
+this.setState({
+  isMovie:false
+})
+  }
+}
+
   render(){
   return (
     <div className="App">
@@ -87,6 +105,10 @@ errormsg:error.response.status + ': '+error.response.data.error
     {
       this.state.isWeather &&
       <Weather weatherinfo={this.state.weather}/>
+    }
+    {
+      this.state.isMovie &&
+      <Movie movie={this.state.movies}/>
     }
     {
       this.state.displayerr &&
