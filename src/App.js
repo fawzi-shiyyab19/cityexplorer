@@ -2,6 +2,7 @@ import { Component } from 'react';
 import './App.css';
 import SearchForm from './components/Searchform';
 import DisplayInfo from './components/displayinformation';
+import Weather from './components/Weather';
 import Map from './components/map';
 import axios from 'axios';
 import Errorcom from './components/error';
@@ -15,7 +16,9 @@ class App extends Component{
       map_src:'',
       DisplayInfo:false,
       errormsg:'',
-      displayerr:false
+      displayerr:false,
+      weather:[],
+      isWeather:false
     }
   }
   displayLocation=async(e) =>{
@@ -33,6 +36,7 @@ try {
         displayerr:false
   })
   this.displayMap(city.data[0].lat,city.data[0].lon);
+  this.displayWeather(searchQuery, city.data[0].lat,city.data[0].lon)
 }catch(error){
 this.setState({
   DisplayInfo:false,
@@ -51,6 +55,24 @@ errormsg:error.response.status + ': '+error.response.data.error
  
   }
 
+  displayWeather =async(searchQuery,lat,lon) => {
+    try{
+    const weatherData =await axios.get(`http://localhost:3001/weather?searchQuery=${searchQuery}&lat=${lat}&lon=${lon}`)
+    this.setState({
+      isWeather:true,
+      weather:weatherData.data
+    })
+  }
+  catch (error){
+    this.setState({
+      errormsg:error.response.status + ': '+error.response.data.error,
+      displayerr:true,
+      isWeather:false,
+      DisplayInfo:false
+    })
+  }
+  }
+
   render(){
   return (
     <div className="App">
@@ -62,6 +84,10 @@ errormsg:error.response.status + ': '+error.response.data.error
       <Map mapsour={this.state.map_src}/>
         </>
     }  
+    {
+      this.state.isWeather &&
+      <Weather weatherinfo={this.state.weather}/>
+    }
     {
       this.state.displayerr &&
       <Errorcom error={this.state.errormsg}/>
