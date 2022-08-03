@@ -1,106 +1,73 @@
-import './App.css'
-import React from 'react'
-import axios from 'axios'
-class App extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      locationResult: {},
-      searchQuery: '',
-      show : true,
-      errorMsg: false,
-      weatherData: [],
-      errorMsgWeather: false,
-      showWeather: false
+import { Component } from 'react';
+import './App.css';
+import SearchForm from './components/Searchform';
+import DisplayInfo from './components/displayinformation';
+import Map from './components/map';
+import axios from 'axios';
+import Errorcom from './components/error';
+class App extends Component{
+  constructor(props){
+    super(props);
+    this.state={
+      display_name:'',
+      latitude:'',
+      longitude:'',
+      map_src:'',
+      DisplayInfo:false,
+      errormsg:'',
+      displayerr:false
     }
   }
-  getLocFun = async (e) => {
-    e.preventDefault()
-    console.log('inside getLocFun')
-    let reqUrl = `https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_LOCATIONIQ_KEY}&q=${this.state.searchQuery}&format=json`
-
-    try{
-      let locRes = await axios.get(reqUrl)
-      console.log(locRes.data)
-      this.setState({
-        locationResult: locRes.data[0],
-      })
-      console.log(this.state.locationResult.lat, this.state.locationResult.lon)
-    }catch{
-      this.setState({
-        show : false,
-        errorMsg : true
-      })
-    }
-
-
-
-
-    this.displayWeather()
-  }
-  displayWeather = async () => {
-    try{
-      const weather = await axios.get(`${process.env.REACT_APP_SERVER}/weather`, {
-      params: { searchQuery: this.state.searchQuery }
-    })
-    console.log(weather)
-    this.setState({
-      weatherData: weather.data,
-      showWeather : true
-    })
-  }catch{
-    this.setState({
-      errorMsgWeather: true,
-      showWeather : false
-
-    })
-  }
-
-}
-updateSearchQuery = (e) => {
+  displayLocation=async(e) =>{
+e.preventDefault();
+const searchQuery=e.target.searchQuery.value;
+let reqUrl = `https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_LOCATIONIQ_KEY}&q=${searchQuery}&format=json`
+// console.log(reqUrl);
+try {
+  const city=await axios.get(reqUrl)
   this.setState({
-    searchQuery: e.target.value
+    display_name:city.data[0].display_name,
+        latitude:city.data[0].lat,
+        longitude:city.data[0].lon,
+        DisplayInfo:true,
+        displayerr:false
   })
+  this.displayMap(city.data[0].lat,city.data[0].lon);
+}catch(error){
+this.setState({
+  DisplayInfo:false,
+displayerr:true,
+errormsg:error.response.status + ': '+error.response.data.error
+})
 }
 
-render() {
+  }
+  displayMap=(lat,lon) =>{
+    const map=`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_LOCATIONIQ_KEY}&center= ${lat},${lon}&zoom=18`
+    console.log(map)
+    this.setState({
+      map_src:map
+    })
+ 
+  }
 
+  render(){
   return (
-    <div>
-      <h3>City Explorer app</h3>
-
-      <form onSubmit={this.getLocFun}>
-        <input  onChange={this.updateSearchQuery} type="text" name="city" />
-        <input type="submit" value='"Explore!' />
-      </form>
-
-      <p>City name: {this.state.locationResult.display_name}</p>
-      <p>latitude: {this.state.locationResult.lat}</p>
-      <p>latitude: {this.state.locationResult.lon}</p>
-
-      {this.state.show &&
-        <img
-        src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_LOCATIONIQ_KEY}&center= ${this.state.locationResult.lat},${this.state.locationResult.lon}&zoom=18`}
-        alt="city"
-        />
-      }
-
-      {this.state.errorMsg &&
-      <p>Error in getting location data</p>}
-
-      {this.state.showWeather &&
-        this.state.weatherData.map((day, index) => (
-        <div key={index}>
-          <p>day: {day.date}</p>
-          <p>description: {day.description}</p>
-        </div>
-
-      ))}
-
-      {this.state.errorMsgWeather &&
-      <p>Error in getting the weather data</p>}
+    <div className="App">
+      <SearchForm submitHandler={this.displayLocation} />
+      {
+        this.state.DisplayInfo &&
+     <>
+      <DisplayInfo cityInfo={this.state}/>
+      <Map mapsour={this.state.map_src}/>
+        </>
+    }  
+    {
+      this.state.displayerr &&
+      <Errorcom error={this.state.errormsg}/>
+    } 
     </div>
-  )
+  );
   }
 }
 export default App;
