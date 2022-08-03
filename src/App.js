@@ -61,7 +61,7 @@ errormsg:error.response.status + ': '+error.response.data.error
 
   displayWeather =async(searchQuery,lat,lon) => {
     try{
-    const weatherData =await axios.get(`http://localhost:3001/weather?searchQuery=${searchQuery}&lat=${lat}&lon=${lon}`)
+    const weatherData =await axios.get(`https://cityexplorernew.herokuapp.com/weather?searchQuery=${searchQuery}&lat=${lat}&lon=${lon}`)
     this.setState({
       isWeather:true,
       weather:weatherData.data
@@ -79,7 +79,7 @@ errormsg:error.response.status + ': '+error.response.data.error
 
 setMovies=async(searchQuery) =>{
   try{
-const movieData=await axios.get(`http://localhost:3001/movies?searchQuery=${searchQuery}`);
+const movieData=await axios.get(`https://cityexplorernew.herokuapp.com/movies?searchQuery=${searchQuery}`);
 this.setState({
   movies:movieData.data,
   isMovie:true
