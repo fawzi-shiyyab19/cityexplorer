@@ -33,7 +33,7 @@
 
 
 ![lab6](ahmad-and-fawzi-lab06.png)
-
+![lab7]()
 city
 # this is
 =======
