@@ -1,16 +1,16 @@
 import { Component } from "react";
+import WeatherDay from "./WeatherDay";
 
-export default class Weather extends Component{
-    render(){
-        return(
-<>
-            {
-                this.props.weatherinfo.map(item =>
-                <li>{item.date} : {item.description}</li>
+export default class Weather extends Component {
+    render() {
+        return (
+            <>
+                {this.props.weatherInformation.map((item) => 
+                    <WeatherDay dayData={item}/>
                 )
-            }
-           
-</>
+                }
+            </>
+
         )
     }
 }
