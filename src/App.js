@@ -79,7 +79,7 @@ errormsg:error.response.status + ': '+error.response.data.error
 
 setMovies=async(searchQuery) =>{
   try{
-const movieData=await axios.get(`https://cityexplorernew.herokuapp.com/movies?searchQuery=${searchQuery}`);
+const movieData=await axios.get(`https://cityexplorernew.herokuapp.com/movie?searchQuery=${searchQuery}`);
 this.setState({
   movies:movieData.data,
   isMovie:true
@@ -104,7 +104,7 @@ this.setState({
     }  
     {
       this.state.isWeather &&
-      <Weather weatherinfo={this.state.weather}/>
+      <Weather weatherInformation={this.state.weather}/>
     }
     {
       this.state.isMovie &&

@@ -5,7 +5,7 @@ export default class Weather extends Component {
     render() {
         return (
             <>
-                {this.props.weatherInformation.map((item) => 
+            {this.props.weatherInformation.map(item => 
                     <WeatherDay dayData={item}/>
                 )
                 }
